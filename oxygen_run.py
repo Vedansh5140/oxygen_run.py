@@ -58,7 +58,8 @@ large_font = pygame.font.Font(None, 72)
 # Game variables
 score = 0
 obstacles = []
-last_oxygen_time = time.time()
+oxygen_timer_active = False  # Timer starts only after collecting the first oxygen
+last_oxygen_time = 0  # Tracks the last oxygen collected time
 game_speed = 1
 
 # Countdown before the game starts
@@ -149,14 +150,15 @@ while running:
             elif obstacle["type"] == "oxygen":
                 score += 1
                 last_oxygen_time = time.time()
+                oxygen_timer_active = True  # Enable oxygen timer after collecting the first oxygen
                 obstacles.remove(obstacle)
 
         # Remove obstacles that go off-screen
         if obstacle["y"] > SCREEN_HEIGHT:
             obstacles.remove(obstacle)
 
-    # Check for oxygen timer (5 seconds)
-    if time.time() - last_oxygen_time > 5:
+    # Check for oxygen timer only after collecting the first oxygen
+    if oxygen_timer_active and time.time() - last_oxygen_time > 5:
         game_over_screen("You ran out of oxygen!")
 
     # Increase game speed progressively
