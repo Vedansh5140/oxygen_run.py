@@ -51,14 +51,29 @@ OBSTACLE_RADIUS = 20
 obstacle_speed = 5
 obstacle_interval = 1.5  # Interval in seconds for spawning obstacles
 
-# Font for displaying score
+# Font for displaying text
 font = pygame.font.Font(None, 36)
+large_font = pygame.font.Font(None, 72)
 
 # Game variables
 score = 0
 obstacles = []
 last_oxygen_time = time.time()
 game_speed = 1
+
+# Countdown before the game starts
+def show_countdown():
+    for countdown in range(3, 0, -1):
+        screen.fill((0, 0, 0))  # Clear the screen
+        text = large_font.render(str(countdown), True, WHITE)
+        screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2 - text.get_height() // 2))
+        pygame.display.flip()
+        time.sleep(1)  # Pause for 1 second
+    screen.fill((0, 0, 0))  # Clear the screen
+    text = large_font.render("Go!", True, WHITE)
+    screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT // 2 - text.get_height() // 2))
+    pygame.display.flip()
+    time.sleep(1)
 
 # Spawn a new obstacle
 def spawn_obstacle():
@@ -88,6 +103,9 @@ def game_over_screen(reason):
     pygame.time.wait(3000)
     pygame.quit()
     sys.exit()
+
+# Show the countdown before starting
+show_countdown()
 
 # Game loop
 running = True
@@ -130,6 +148,32 @@ while running:
                 game_over_screen("You touched carbon dioxide!")
             elif obstacle["type"] == "oxygen":
                 score += 1
-            
+                last_oxygen_time = time.time()
+                obstacles.remove(obstacle)
 
+        # Remove obstacles that go off-screen
+        if obstacle["y"] > SCREEN_HEIGHT:
+            obstacles.remove(obstacle)
 
+    # Check for oxygen timer (5 seconds)
+    if time.time() - last_oxygen_time > 5:
+        game_over_screen("You ran out of oxygen!")
+
+    # Increase game speed progressively
+    game_speed = 1 + score // 5
+    obstacle_speed = 5 + score // 10
+
+    # Draw player and obstacles
+    draw_player(player_x, player_y)
+    for obstacle in obstacles:
+        draw_obstacle(obstacle)
+
+    # Display score
+    score_text = font.render(f"Score: {score}", True, WHITE)
+    screen.blit(score_text, (10, 10))
+
+    # Update the screen
+    pygame.display.flip()
+    clock.tick(30)
+
+pygame.quit()
