@@ -38,13 +38,10 @@ except pygame.error:
 # Player properties
 PLAYER_WIDTH = 40
 PLAYER_HEIGHT = 60
-player_x = SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
 player_y = SCREEN_HEIGHT - PLAYER_HEIGHT - 20
-player_speed = 10
-
-# Lanes
-LANE_WIDTH = SCREEN_WIDTH // 3
-lanes = [LANE_WIDTH // 2, SCREEN_WIDTH // 2, SCREEN_WIDTH - LANE_WIDTH // 2]
+current_lane_index = 1  # Start in the middle lane
+lanes = [SCREEN_WIDTH // 6, SCREEN_WIDTH // 2, 5 * SCREEN_WIDTH // 6]  # Three lanes
+player_x = lanes[current_lane_index]
 
 # Obstacle properties
 OBSTACLE_RADIUS = 20
@@ -84,7 +81,7 @@ def spawn_obstacle():
 
 # Draw the player
 def draw_player(x, y):
-    screen.blit(player_sprite, (x, y))
+    screen.blit(player_sprite, (x - PLAYER_WIDTH // 2, y))
 
 # Draw obstacles
 def draw_obstacle(obstacle):
@@ -119,17 +116,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT and current_lane_index > 0:
+                current_lane_index -= 1  # Move to the left lane
+            if event.key == pygame.K_RIGHT and current_lane_index < 2:
+                current_lane_index += 1  # Move to the right lane
 
-    # Player movement
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and player_x > 0:
-        player_x -= player_speed
-    if keys[pygame.K_RIGHT] and player_x < SCREEN_WIDTH - PLAYER_WIDTH:
-        player_x += player_speed
-
-    # Ensure the player stays in the closest lane
-    player_lane = min(lanes, key=lambda lane: abs(player_x + PLAYER_WIDTH // 2 - lane))
-    player_x = player_lane - PLAYER_WIDTH // 2
+    # Update player position based on the lane
+    player_x = lanes[current_lane_index]
 
     # Spawn new obstacles periodically
     if time.time() - last_obstacle_time > obstacle_interval / game_speed:
@@ -142,7 +136,7 @@ while running:
 
         # Check for collision with the player
         if (
-            abs(player_x + PLAYER_WIDTH // 2 - obstacle["x"]) < OBSTACLE_RADIUS and
+            abs(player_x - obstacle["x"]) < OBSTACLE_RADIUS + PLAYER_WIDTH // 2 and
             abs(player_y + PLAYER_HEIGHT // 2 - obstacle["y"]) < OBSTACLE_RADIUS
         ):
             if obstacle["type"] == "carbon_dioxide":
