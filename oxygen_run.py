@@ -163,9 +163,10 @@ while running:
         obstacles.append(spawn_obstacle())
         last_oxygen_time = time.time()
 
-    # Increase game speed progressively
-    game_speed = 1 + score // 5
-    obstacle_speed = 5 + score // 10
+    # Increase game speed after every 10 points
+    if score >= 10 * (game_speed - 1):
+        game_speed += 1  # Increase speed for each 10 score increase
+        obstacle_speed += 1  # Increase obstacle speed as well
 
     # Draw player and obstacles
     draw_player(player_x, player_y)
