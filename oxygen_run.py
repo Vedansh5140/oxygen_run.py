@@ -57,6 +57,8 @@ score = 0
 obstacles = []
 oxygen_timer_active = False  # Timer starts only after collecting the first oxygen
 last_oxygen_time = 0  # Tracks the last oxygen collected time
+oxygen_lifespan = 5  # Oxygen lasts for 5 seconds if not collected
+oxygen_interval = 2  # Oxygen spawn interval in seconds
 game_speed = 1
 
 # Countdown before the game starts
@@ -108,6 +110,7 @@ show_countdown()
 # Game loop
 running = True
 last_obstacle_time = time.time()
+last_oxygen_time = time.time()
 
 while running:
     screen.blit(space_bg, (0, 0))
@@ -152,8 +155,13 @@ while running:
             obstacles.remove(obstacle)
 
     # Check for oxygen timer only after collecting the first oxygen
-    if oxygen_timer_active and time.time() - last_oxygen_time > 5:
+    if oxygen_timer_active and time.time() - last_oxygen_time > oxygen_lifespan:
         game_over_screen("You ran out of oxygen!")
+
+    # Spawn new oxygen dots at regular intervals
+    if time.time() - last_oxygen_time > oxygen_interval:
+        obstacles.append(spawn_obstacle())
+        last_oxygen_time = time.time()
 
     # Increase game speed progressively
     game_speed = 1 + score // 5
