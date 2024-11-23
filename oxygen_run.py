@@ -61,6 +61,18 @@ oxygen_lifespan = 5  # Oxygen lasts for 5 seconds if not collected
 oxygen_interval = 2  # Oxygen spawn interval in seconds
 game_speed = 1
 
+# Show intro screen before starting the game
+def show_intro():
+    screen.fill((0, 0, 0))  # Clear the screen
+    intro_text = large_font.render("Space Survival", True, WHITE)
+    sub_text = font.render("You are your own enemy", True, WHITE)
+   
+    screen.blit(intro_text, (SCREEN_WIDTH // 2 - intro_text.get_width() // 2, SCREEN_HEIGHT // 2 - 60))
+    screen.blit(sub_text, (SCREEN_WIDTH // 2 - sub_text.get_width() // 2, SCREEN_HEIGHT // 2 + 20))
+   
+    pygame.display.flip()
+    time.sleep(2)  # Display intro text for 2 seconds
+
 # Countdown before the game starts
 def show_countdown():
     for countdown in range(3, 0, -1):
@@ -103,6 +115,9 @@ def game_over_screen(reason):
     pygame.time.wait(3000)
     pygame.quit()
     sys.exit()
+
+# Show the intro screen before starting
+show_intro()
 
 # Show the countdown before starting
 show_countdown()
@@ -182,3 +197,4 @@ while running:
     clock.tick(30)
 
 pygame.quit()
+
